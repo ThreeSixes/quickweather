@@ -1,3 +1,8 @@
 ---
 openWeatherApi:
   appid: <Get an API key at https://openweathermap.org/appid>
+postgres:
+  user: "vagrant"
+  password: "vagrant"
+  host: "127.0.0.1"
+  port: 5432
