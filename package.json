@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/ThreeSixes/quickweather#readme",
   "dependencies": {
+    "express": "^4.17.1",
     "js-yaml": "^3.13.1",
     "openweather-apis": "^4.0.0",
     "pg": "^7.12.0"
