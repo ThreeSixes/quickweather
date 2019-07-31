@@ -1,0 +1,24 @@
+{
+  "name": "quickweather",
+  "version": "1.0.0",
+  "description": "A quick (and caching) weather REST API.",
+  "main": "src/server.js",
+  "engines": "10.16.0",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ThreeSixes/quickweather.git"
+  },
+  "keywords": [
+    "Weather",
+    "REST"
+  ],
+  "author": "Josh Lucy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ThreeSixes/quickweather/issues"
+  },
+  "homepage": "https://github.com/ThreeSixes/quickweather#readme"
+}
