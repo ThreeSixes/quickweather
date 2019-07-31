@@ -1,7 +1,8 @@
 'use strict';
+const db = require("db");
 const express = require("express");
-const yaml = require('js-yaml');
 const {readFileSync} = require('fs');
+const yaml = require('js-yaml');
 
 // Create a global config object.
 var cfg = {};
@@ -9,12 +10,18 @@ var cfg = {};
 // Set up Express.
 var app = express();
 
+// Attempt to get a valid cached result.
+
+
 // Start the server process.
 async function init() {
   console.log("Loading configuration...");
   try {
     // Actually load our configuration.
     cfg = yaml.safeLoad(readFileSync('config.yml', 'utf8'));
+
+    // Set up our databae connections.
+    db.init(cfg);
 
     // Start listening for connections with Express.
     app.listen(cfg.service.listen_port, cfg.service.listen_address, () => {
