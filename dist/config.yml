@@ -1,0 +1,3 @@
+---
+openWeatherApi:
+  appid: <Get an API key at https://openweathermap.org/appid>
