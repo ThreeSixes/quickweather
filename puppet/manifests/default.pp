@@ -29,8 +29,8 @@ package { "supervisor":
 
 # Bootstrap PostgreSQL
 class { 'postgresql::globals':
-  encoding => 'UTF-8',
-  locale   => 'en_US.UTF-8',
+  encoding                => 'UTF-8',
+  locale                  => 'en_US.UTF-8',
 }
 
 class { 'postgresql::server':
@@ -46,5 +46,11 @@ postgresql::server::role { 'vagrant':
   createdb                => true,
   login                   => true,
   password_hash           => postgresql_password("vagrant", "vagrant"),
+  require                 => Class['Postgresql::Server'],
+}
+
+postgresql::server::db { 'quickweather':
+  user                    => 'vagrant',
+  password                => postgresql_password('vagrant', 'vagrant'),
   require                 => Class['Postgresql::Server'],
 }
