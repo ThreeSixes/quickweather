@@ -1,0 +1,26 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  # CentOS 7 box
+  config.vm.box = "centos/7"
+
+  # Expose Weather API ports.
+  config.vm.network "forwarded_port", guest: 9999, host: 9999
+
+  # Bootstrap Puppet
+  config.vm.provision "shell", inline: <<-SHELL
+    echo "=== Install puppet-agent ==="
+    wget https://yum.puppet.com/puppet5/puppet5-release-el-${VERS}.noarch.rpm
+    rpm -Uvh puppet5-release-el-${VERS}.noarch.rpm
+    yum install -y puppet-agent
+  SHELL
+
+  # Provision host with Puppet.
+  config.vm.provision "puppet" do |puppet|
+    puppet.module_path = "puppet/modules"
+    puppet.manifests_path = "puppet/manifests"
+    puppet.manifest_file = "default.pp"
+    puppet.options = "--verbose --debug"
+  end
+end
