@@ -7,8 +7,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/server.js",
-    "migrate:up": "node_modules/.bin/sequelize db:migrate",
-    "migrate:down": ""
+    "migrate:up": "./node_modules/.bin/sequelize db:migrate",
+    "migrate:down": "./node_modules/.bin/sequelize db:migrate:undo"
   },
   "repository": {
     "type": "git",
