@@ -13,7 +13,7 @@ QuickWeather is a caching RESTful API that supports retrieving the temperature f
 The application is designed to be distributed using Jenkins or AWS CodeDeploy jobs. Secrets such as the API key and Postgres database settings in `config.yml` should be distributed using encrypted Hieradata parameters. When distributing the package via Jenkins use SSH upload jobs to distribute the package, but make sure Puppet manages `config.yml`. AWS CodeDeploy can also be used to deploy the application to EC2 instances, and Puppet should manage `config.yml`.
 
 ### Repository layout
-* `config/` stores sequelize CLI configurations.
+* `config/` stores Sequelize CLI configurations.
   * `config.json` stores configuration values for the Sequelize CLI utilities.
 * `db/` contains Sequelize migrations and seeders.
 * `dist/` contains a sample application configuration.
@@ -27,24 +27,23 @@ The application is designed to be distributed using Jenkins or AWS CodeDeploy jo
 * `Vagrantfile` - File used to provision the local Vagrant environment.
 
 ### Theory of operation
-After being deployed QuickWeather API should be executed and kept online using Superviosr inside an NMV enrionment to ensure that the execution environment for QuickWeather is kept separate from the system Node.JS verson of the node running the project. NVM should be installed in the user running the application's profile. When started the application reads `config.yml` in the root of the project and uses the information contained there to create database connections, connect to APIs, determine listning ports, etc.
+After being deployed QuickWeather API should be executed and kept online using Superviosr inside an NVM enrionment to ensure that the execution environment for QuickWeather is kept separate from the system Node.JS. NVM should be installed for the user running the application's profile. When started the application reads `config.yml` in the root of the project and uses the information contained there to create database connections, connect to APIs, determine listning ports, etc.
 
-When an HTTP request arrives the application uses the incoming request route to determine which city and state the data is being requested for. After that it uses the city and state to request geocoding information which is then passed to the source Open Weather API to request current weather observations. That data is then passed to the user aalong with a timestamp for when the request came in. Responses are sent as JSON-formatted strings like `{"timestamp":"2019-08-01T08:37:35.806Z","temperature":11.55}` when a request is issued against a local dev environment using `curl http://127.0.0.1:9999/OR/portland/temperature`.
+When an HTTP request arrives the application uses the incoming request route to determine which city and state the data is being requested for. After that it uses the city and state to request geocoding information from Open Street Maps which is then passed to the source Open Weather API to request current weather observations. That data is then passed to the user along with a timestamp for when the request came in. Responses are sent as JSON-formatted strings like `{"timestamp":"2019-08-01T08:37:35.806Z","temperature":11.55}`. A test query can be executed against a local development environment using a command like `curl http://127.0.0.1:9999/OR/portland/temperature`.
 
 Entries are then cached in PosgreSQL with an expiration value. If the entry doesn't already exist in the database or has expired already the call to Open Weather API is made and the temperature data along with the city and state are cached.
 
 ### Deployment
-Production deployments should be done via CI/CD. The distribution pakcage should be created by running `npm ci`. If migrations are to be run from CI/CD secrets and configuration values for prodution should be written to `config/config.json` and then `npm run migrate:up` should be issue to make sure the procution Posgtres database's schema is up-to-date. The packages should then be distibuted via appropirate Jeninks or CodeDeploy jobs.
+Production deployments should be done via CI/CD. The distribution pakcage should be preparted by running `npm ci` before packaging and distribution. If migrations are to be run from CI/CD secrets and configuration values for prodution should be written to `config/config.json` and then `npm run migrate:up` should be issued to make sure the procution Posgtres database's schema is up-to-date. The packages should then be distibuted via appropirate Jeninks or CodeDeploy jobs.
 
-If any configuration changes are necessary they should be made using Puppet. If the Puppet agent has to be run quickly Ansible or Puppet Bolt can be used to trigger Puppet agent on the appropriate systems.
+If any configuration changes are necessary they should be made using Puppet. If the Puppet agent has to be run on server nodes quickly Ansible or Puppet Bolt can be used to trigger Puppet agent on the appropriate systems.
 
 To manually create a distribution run the following commands inside an appropriate nvm envioronment using Node.JS 10.16.0:
-```
+```bash
 npm ci
 cp dist/config.yml .
 cp config/config.json.dist config/config.json
 ```
-
 You should then edit both `config.yml` and `config/config.json` to have appropriate values for the environment being deployed to. Example configuration values for a local environment:
 
 config.yml:
@@ -96,8 +95,10 @@ config/config.json
 ```
 
 ## Development and testing environment
+
 ### Theory of operation
 The local development environment leverages Vagrant and the VirtualBox provider to provision a development and test environment for the QuickWeather API, including a self-contained PostgreSQL database installed via the [puppetlabs-postgresql](https://forge.puppet.com/puppetlabs/postgresql). The API's process is managed by [Supervisor](http://supervisord.org/). The database is created by Puppet, and Sequelize mgrations create the ncessary tables.
+
 ### Local development environment:
 
 #### Prerequisites
@@ -118,5 +119,5 @@ The local development environment leverages Vagrant and the VirtualBox provider 
 * TCP `9876` exposes the PostreSQL database to the local host.
 
 ## Known issues and limitations
-###  Geocoding API rate issues
+### Geocoding API rate issues
 The Geocoding API provided by OpenStreetMap is rate-limited to one call per second. In the future an additional layer of caching and possibly a higher-volume paid API should be considered.
