@@ -1,7 +1,7 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('temperature_caches', {
+    return queryInterface.createTable('temperature_cache', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -22,7 +22,7 @@ module.exports = {
       },
       expires: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.BIGINT
       },
       createdAt: {
         allowNull: false,
@@ -35,6 +35,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('temperature_caches');
+    return queryInterface.dropTable('temperature_cache');
   }
 };
