@@ -8,22 +8,12 @@ package { 'epel-release':
   ensure                  => "installed",
 }
 
-package { 'python-pip':
-  ensure                  => "installed",
-}
-
 package { 'postgresql':
   ensure                  => "installed",
 }
 
 package { 'postgresql-devel':
   ensure                  => "installed",
-}
-
-package { "supervisor":
-       ensure             => "installed",
-       provider           => 'pip',
-       require            => Package['python-pip'],
 }
 
 package { 'curl':
@@ -44,6 +34,13 @@ exec { 'node-install':
 	user => 'vagrant',
 	environment => 'HOME=/home/vagrant',
 	require => Exec['nvm-install']
+}
+
+exec { 'project-setup':
+	command => '/bin/bash -c "source /home/vagrant/.bashrc && cd /vagrant && npm run setup"',
+	user => 'vagrant',
+	environment => 'HOME=/home/vagrant',
+	require => Exec['node-install'],
 }
 
 # Bootstrap PostgreSQL
@@ -72,4 +69,5 @@ postgresql::server::db { 'quickweather':
   user                    => 'vagrant',
   password                => postgresql_password('vagrant', 'vagrant'),
   require                 => Class['Postgresql::Server'],
+  before                  => Exec['project-setup'],
 }
