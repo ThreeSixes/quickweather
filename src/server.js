@@ -66,7 +66,7 @@ app.get("/:state/:city/temperature", (req, res, next) => {
           console.log("Cache hit.");
           // Just return the data we have in cache.
           res.json({
-            'timestamp': requestTimestamp,
+            'query_time': requestTimestamp,
             'temperature': result.rows[0]['dataValues']['temperature']}
           );
           needsCached = false;
@@ -117,7 +117,7 @@ app.get("/:state/:city/temperature", (req, res, next) => {
 
         console.log("Getting temperature.");
         weather.getTemperature(function(err, temp) {
-          res.json({'timestamp': requestTimestamp, 'temperature': temp});
+          res.json({'query_time': requestTimestamp, 'temperature': temp});
 
           // Compute cached item expiry time.
           var expiryTime = now.getTime() + (1000 * cfg.cache.temperature_max_age);
