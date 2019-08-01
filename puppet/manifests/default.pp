@@ -10,7 +10,6 @@ package { 'epel-release':
 
 package { 'python-pip':
   ensure                  => "installed",
-  require                 => Package['epel-release'],
 }
 
 package { 'postgresql':
@@ -25,6 +24,26 @@ package { "supervisor":
        ensure             => "installed",
        provider           => 'pip',
        require            => Package['python-pip'],
+}
+
+package { 'curl':
+  ensure                  => "installed",
+}
+
+# Set up nvm for the vagrant user
+exec { 'nvm-install':
+	command => '/usr/bin/curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash',
+	creates => '/home/vagrant/.nvm',
+	user => 'vagrant',
+	environment => 'HOME=/home/vagrant',
+	require => [ Package['curl'], User['vagrant'] ],
+}
+
+exec { 'node-install':
+	command => '/bin/bash -c "source /home/vagrant/.bashrc && nvm install 10.16.0 && nvm alias default 10.16.0"',
+	user => 'vagrant',
+	environment => 'HOME=/home/vagrant',
+	require => Exec['nvm-install']
 }
 
 # Bootstrap PostgreSQL
