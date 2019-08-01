@@ -1,0 +1,17 @@
+---
+openWeatherApi:
+  appid: "<YOUR OPEN WEATHER API API KEY GOES HERE."
+openStreetMap:
+  base_url: "https://nominatim.openstreetmap.org"
+service:
+  listen_port: 9999
+  user_agent: "QuickWeather/1.0"
+cache:
+  temperature_max_age: 1800
+db:
+  user: "vagrant"
+  password: "vagrant"
+  host: "127.0.0.1"
+  port: 5432
+  database: "quickweather"
+  cache_table: "temperature_cache"

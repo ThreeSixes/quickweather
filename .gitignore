@@ -1,1 +1,4 @@
-node_modules/**
+/.vagrant/**
+/node_modules/**
+/config.yml
+/config/config.json
