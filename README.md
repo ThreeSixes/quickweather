@@ -9,7 +9,7 @@
 * API key from [OpenWeathermap](https://openweathermap.org/api) with current data subscription (free).
 
 ### Background
-QuickWeather is a caching RESTful API that supports retrieving the temperature for a given city and state in the US. It's designed to run as an unprivileged user on a node bheind a load balancer that wraps connections in SSL when in production. The only supported routes in the API are */<state>/<city>/temperature* where state and city are the city name and two letter state abbreviation (OR, CO, WY, etc.).
+QuickWeather is a caching RESTful API that supports retrieving the temperature for a given city and state in the US. It's designed to run as an unprivileged user on a node bheind a load balancer that wraps connections in SSL when in production. The only supported routes in the API are */\<state\>/\<city\>/temperature* where state and city are the city name and two letter state abbreviation (OR, CO, WY, etc.).
 The application is designed to be distributed using Jenkins or AWS CodeDeploy jobs. Secrets such as the API key and Postgres database settings in `config.yml` should be distributed using encrypted Hieradata parameters. When distributing the package via Jenkins use SSH upload jobs to distribute the package, but make sure Puppet manages `config.yml`. AWS CodeDeploy can also be used to deploy the application to EC2 instances, and Puppet should manage `config.yml`.
 
 ### Repository layout
