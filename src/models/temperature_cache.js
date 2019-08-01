@@ -4,8 +4,8 @@ module.exports = (sequelize, DataTypes) => {
     city: DataTypes.STRING,
     state: DataTypes.STRING,
     temperature: DataTypes.FLOAT,
-    expires: DataTypes.DATE
-  }, {});
+    expires: DataTypes.BIGINT
+  }, {freezeTableName: true});
   temperature_cache.associate = function(models) {
     // associations can be defined here
   };
