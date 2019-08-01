@@ -1,44 +1,53 @@
 'use strict';
-const db = require("db");
+const db = require("./db.js");
 const express = require("express");
 const {readFileSync} = require('fs');
+const request = require("request");
+const util = require("util");
 const yaml = require('js-yaml');
+const weather = require('openweather-apis');
 
 // Create a global config object.
-var cfg = {};
+console.log("Loading configuration...");
+const cfg = yaml.safeLoad(readFileSync('config.yml', 'utf8'));
+
+// Set up OpenWeatherMap API key
+weather.setAPPID(cfg.openWeatherApi.appid);
 
 // Set up Express.
-var app = express();
+const app = express();
 
-// Attempt to get a valid cached result.
+// Start listening for connections with Express.
+app.listen(cfg.service.listen_port, cfg.service.listen_address, () => {
+  console.log("Server listening on " + cfg.service.listen_port);
+});
 
+// Handle incoming requests for the state/city/temperature GET route.
+app.get("/:state/:city/temperature", (req, res, next) => {
+  console.log("Request:" + req.connection.remoteAddress + " -> " + req.params.city + ", " + req.params.state);
+  let query = util.format("?format=json&q=%s,%s,us", req.params.city, req.params.state);
+  let options = {
+    url: util.format("%s/%s", cfg.openStreetMap.base_url, query),
+    method: "GET",
+    headers: {
+      "User-Agent": cfg.service.user_agent
+    }
+  };
 
-// Start the server process.
-async function init() {
-  console.log("Loading configuration...");
-  try {
-    // Actually load our configuration.
-    cfg = yaml.safeLoad(readFileSync('config.yml', 'utf8'));
+  request(options, (error, response, body) => {
+    if (error) {
+      console.log(error);
+      JSON.
+    } else {
+      // Go with the first result.
+      const place_data = JSON.parse(body);
+      const lat = Number(place_data[0]['lat']);
+      const lon = Number(place_data[0]['lon']);
+      weather.setCoordinate(lat, lon);
+    }
+  });
 
-    // Set up our databae connections.
-    db.init(cfg);
-
-    // Start listening for connections with Express.
-    app.listen(cfg.service.listen_port, cfg.service.listen_address, () => {
-     console.log("Server listening on " + cfg.service.listen_address + ":" + cfg.service.listen_port);
-    });
-
-    app.get("/:state/:city/temperature", (req, res, next) => {
-      console.log("Request:" + req.connection.remoteAddress + " -> " + req.params.city + ", " + req.params.state);
-      // TODO: Put out an actual response.
-      res.json({'timestamp': new Date().toISOString(), 'temperature': 39});
-    });
-
-  } catch (e) {
-    console.log("Failed to load configuration file:\n" + e);
-    process.exit(1);
-  }
-}
-
-console.log("Starting QuickWeather...");
-init();
+  weather.getTemperature(function(err, temp) {
+    res.json({'timestamp': new Date().toISOString(), 'temperature': temp});
+  });
+});
