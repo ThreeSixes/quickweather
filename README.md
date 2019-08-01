@@ -36,7 +36,7 @@ Entries are then cached in PosgreSQL with an expiration value. If the entry does
 ### Database
 This project's Postgres database is very simple. It consists of a single table which caches responses from the Open Weather API for a given city and state. Generally the database is called `quickweather`, but for shared SQL environments the database name can be changed to suit needs. The database's schema is managed by Sequelize and all migrations are stored in this repository under `db/migrations`.
 
-The `temperature_cache` table has five columns which cannot be null. All but the `id` don't have default values.
+The `temperature_cache` table has five columns which cannot be null. Only the `id` supports default values..
 * `id`, a BIGINT which is used to uniquely identify each row and as an index. This field will automatically populate as a row is inserted.
 * `city` idnetifies the city the cached entry is for as a STRING.
 * `state` idnetifies the state the cached entry is for as a STRING.
