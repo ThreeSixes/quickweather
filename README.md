@@ -4,12 +4,13 @@
 
 ### Application prerequisites
 * Node.js 10.16.0 (LTS/Dubnium)
-* NVM
+* [NVM](https://github.com/nvm-sh/nvm)
 * Supervisor
 * API key from [OpenWeathermap](https://openweathermap.org/api) with current data subscription (free).
 
 ### Background
 QuickWeather is a caching RESTful API that supports retrieving the temperature for a given city and state in the US. It's designed to run as an unprivileged user on a node bheind a load balancer that wraps connections in SSL when in production. The only supported routes in the API are */\<state\>/\<city\>/temperature* where state and city are the city name and two letter state abbreviation (OR, CO, WY, etc.).
+
 The application is designed to be distributed using Jenkins or AWS CodeDeploy jobs. Secrets such as the API key and Postgres database settings in `config.yml` should be distributed using encrypted Hieradata parameters. When distributing the package via Jenkins use SSH upload jobs to distribute the package, but make sure Puppet manages `config.yml`. AWS CodeDeploy can also be used to deploy the application to EC2 instances, and Puppet should manage `config.yml`.
 
 ### Repository layout
@@ -27,7 +28,7 @@ The application is designed to be distributed using Jenkins or AWS CodeDeploy jo
 * `Vagrantfile` - File used to provision the local Vagrant environment.
 
 ### Theory of operation
-After being deployed QuickWeather API should be executed and kept online using Superviosr inside an NVM enrionment to ensure that the execution environment for QuickWeather is kept separate from the system Node.JS. NVM should be installed for the user running the application's profile. When started the application reads `config.yml` in the root of the project and uses the information contained there to create database connections, connect to APIs, determine listning ports, etc.
+After being deployed QuickWeather API should be executed and kept online using Superviosr inside an NVM enrionment to ensure that the execution environment for QuickWeather is kept separate from the system Node.JS. NVM should be installed for the user running the application's profile. When started the application reads `config.yml` in the root of the project and uses the information contained there to create database connections, connect to APIs, determine listning ports, etc. Supervisor's installation and configuration should be managed using Puppet.
 
 When an HTTP request arrives the application uses the incoming request route to determine which city and state the data is being requested for. After that it uses the city and state to request geocoding information from Open Street Maps which is then passed to the source Open Weather API to request current weather observations. That data is then passed to the user along with a timestamp for when the request came in. Responses are sent as JSON-formatted strings like `{"timestamp":"2019-08-01T08:37:35.806Z","temperature":11.55}`. A test query can be executed against a local development environment using a command like `curl http://127.0.0.1:9999/OR/portland/temperature`.
 
@@ -36,7 +37,7 @@ Entries are then cached in PosgreSQL with an expiration value. If the entry does
 ### Database
 This project's Postgres database is very simple. It consists of a single table which caches responses from the Open Weather API for a given city and state. Generally the database is called `quickweather`, but for shared SQL environments the database name can be changed to suit needs. The database's schema is managed by Sequelize and all migrations are stored in this repository under `db/migrations`.
 
-The `temperature_cache` table has five columns which cannot be null. Only the `id` supports default values..
+the `temperature_cache` table has five columns which cannot be null. Only the `id` supports default values.
 * `id`, a BIGINT which is used to uniquely identify each row and as an index. This field will automatically populate as a row is inserted.
 * `city` idnetifies the city the cached entry is for as a STRING.
 * `state` idnetifies the state the cached entry is for as a STRING.
@@ -56,7 +57,7 @@ Production deployments should be done via CI/CD. The distribution pakcage should
 
 If any configuration changes are necessary they should be made using Puppet. If the Puppet agent has to be run on server nodes quickly Ansible or Puppet Bolt can be used to trigger Puppet agent on the appropriate systems.
 
-To manually create a distribution run the following commands inside an appropriate nvm envioronment using Node.JS 10.16.0:
+To manually create a distribution run the following commands inside an appropriate NVM environment using Node.JS 10.16.0:
 ```bash
 npm ci
 cp dist/config.yml .
@@ -115,7 +116,7 @@ config/config.json
 ## Development and testing environment
 
 ### Theory of operation
-The local development environment leverages Vagrant and the VirtualBox provider to provision a development and test environment for the QuickWeather API, including a self-contained PostgreSQL database installed via the [puppetlabs-postgresql](https://forge.puppet.com/puppetlabs/postgresql). The API's process is managed by [Supervisor](http://supervisord.org/). The database is created by Puppet, and Sequelize mgrations create the ncessary tables.
+The local development environment leverages Vagrant and the VirtualBox provider to provision a development and test environment for the QuickWeather API, including a self-contained PostgreSQL database installed via the [puppetlabs-postgresql](https://forge.puppet.com/puppetlabs/postgresql). The API's process should be manually kicked off by the developer as the `vagrant` user since Supervisor won't automatically restart the process when changes are made to files. The database is created by Puppet, and Sequelize mgrations create the ncessary tables.
 
 ### Local development environment:
 
@@ -129,7 +130,7 @@ The local development environment leverages Vagrant and the VirtualBox provider 
 * To start the development environment change directories into the root of this repository and execute `vagrant up`. The Puppet manifest will install all necessary packaes, copy any distributed configuration files, and will also create the Postgres tables.
 * Make sure you edit config.yml and add your individual OpenWeather API key to the `appid` key in the `OpenWeatherApi` section of config.yml.
 * You can now start the QuickWeather service by running the following: `cd /vagrant && npm start`. Please note that this does not start automatically with the Vagrant box, and doesn't automatically reload when code changes are made. Just use Control + C to kill the node process and start it again using `npm start`.
-* The Weather API should be exposed at http://127.0.0.1:9999/ after the setup is complete.
+* The Weather API should be exposed at http://127.0.0.1:9999/ after the setup is complete and the node process has been started via NPM.
 * To terminate the development environment change directories into the root of this repository and execute `vagrant destroy`.
 
 #### Exposed ports
