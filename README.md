@@ -20,7 +20,7 @@ The application is designed to be distributed using Jenkins or AWS CodeDeploy jo
 * `puppet/` contains Puppet modules, etc. required for Vagrant to provision development environments.
 * `src/` contains the principal server code.
   * `server.js` - is the main executable that serves the API.
-  * `modles/` - contains sequelize models for the PostgreSQL database.
+  * `models/` - contains sequelize models for the PostgreSQL database.
 * `package.json` - NPM package file.
 * `package-lock.json` - NPM package lock file.
 * `README.md` - this file.
@@ -31,7 +31,25 @@ After being deployed QuickWeather API should be executed and kept online using S
 
 When an HTTP request arrives the application uses the incoming request route to determine which city and state the data is being requested for. After that it uses the city and state to request geocoding information from Open Street Maps which is then passed to the source Open Weather API to request current weather observations. That data is then passed to the user along with a timestamp for when the request came in. Responses are sent as JSON-formatted strings like `{"timestamp":"2019-08-01T08:37:35.806Z","temperature":11.55}`. A test query can be executed against a local development environment using a command like `curl http://127.0.0.1:9999/OR/portland/temperature`.
 
-Entries are then cached in PosgreSQL with an expiration value. If the entry doesn't already exist in the database or has expired already the call to Open Weather API is made and the temperature data along with the city and state are cached.
+Entries are then cached in PosgreSQL with an expiration value. If the entry doesn't already exist in the database or has expired already the API calls to Open Street Maps and Open Weather APIs is made. The returned temperature data along with the city and state are cached.
+
+### Database
+This project's Postgres database is very simple. It consists of a single table which caches responses from the Open Weather API for a given city and state. Generally the database is called `quickweather`, but for shared SQL environments the database name can be changed to suit needs. The database's schema is managed by Sequelize and all migrations are stored in this repository under `db/migrations`.
+
+The `temperature_cache` table has five columns which cannot be null. All but the `id` don't have default values.
+* `id`, a BIGINT which is used to uniquely identify each row and as an index. This field will automatically populate as a row is inserted.
+* `city` idnetifies the city the cached entry is for as a STRING.
+* `state` idnetifies the state the cached entry is for as a STRING.
+* `temperature` stores the cached temperature value as a FLOAT.
+* `expires` stores Unix time stamp of the time the cach entry expires as a BIGINT.
+
+### Database migrations
+Database migrations should be executed using one of three commands appropriate to the circumstances inside a node 10.16.0 environment.
+* `npm run migrate:up` should be used to update a database's schema.
+* `npm run migrate:down` should be used to roll back a database's schema.
+* `npm run setup` should be used when provisioning a development environment inside Vagrant. This command copsies some development environment specifc assets and also runs the migrate:up command to set up the database.
+
+All migrations are handled by Sequelize under the hood.
 
 ### Deployment
 Production deployments should be done via CI/CD. The distribution pakcage should be preparted by running `npm ci` before packaging and distribution. If migrations are to be run from CI/CD secrets and configuration values for prodution should be written to `config/config.json` and then `npm run migrate:up` should be issued to make sure the procution Posgtres database's schema is up-to-date. The packages should then be distibuted via appropirate Jeninks or CodeDeploy jobs.
