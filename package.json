@@ -6,7 +6,9 @@
   "engines": "10.16.0",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "migrate:up": "node_modules/.bin/sequelize db:migrate",
+    "migrate:down": ""
   },
   "repository": {
     "type": "git",
@@ -27,6 +29,9 @@
     "js-yaml": "^3.13.1",
     "openweather-apis": "^4.0.0",
     "pg": "^7.12.0",
-    "request": "^2.88.0"
+    "pg-hstore": "^2.3.3",
+    "request": "^2.88.0",
+    "sequelize": "^5.12.2",
+    "sequelize-cli": "^5.5.0"
   }
 }
