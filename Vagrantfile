@@ -5,6 +5,8 @@ Vagrant.configure("2") do |config|
   # CentOS 7 box
   config.vm.box = "centos/7"
 
+  config.vm.synced_folder ".", "/vagrant", type: "virtualbox"
+
   # Expose Weather API and database ports.
   config.vm.network "forwarded_port", guest: 9999, host: 9999
   config.vm.network "forwarded_port", guest: 5432, host: 9876

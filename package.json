@@ -5,7 +5,11 @@
   "main": "src/server.js",
   "engines": "10.16.0",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "setup": "cp config/config.json.dist config/config.json && cp dist/config.yml config.yml && npm run migrate:up && echo \"Please edit config.yml. See README.md for more details.\"",
+    "start": "node src/server.js",
+    "migrate:up": "./node_modules/.bin/sequelize db:migrate",
+    "migrate:down": "./node_modules/.bin/sequelize db:migrate:undo"
   },
   "repository": {
     "type": "git",
@@ -20,5 +24,15 @@
   "bugs": {
     "url": "https://github.com/ThreeSixes/quickweather/issues"
   },
-  "homepage": "https://github.com/ThreeSixes/quickweather#readme"
+  "homepage": "https://github.com/ThreeSixes/quickweather#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "js-yaml": "^3.13.1",
+    "openweather-apis": "^4.0.0",
+    "pg": "^7.12.0",
+    "pg-hstore": "^2.3.3",
+    "request": "^2.88.0",
+    "sequelize": "^5.12.2",
+    "sequelize-cli": "^5.5.0"
+  }
 }
