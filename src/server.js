@@ -1,5 +1,4 @@
 'use strict';
-const db = require("./db.js");
 const express = require("express");
 const {readFileSync} = require('fs');
 const request = require("request");
@@ -24,7 +23,7 @@ app.listen(cfg.service.listen_port, cfg.service.listen_address, () => {
 
 // Handle incoming requests for the state/city/temperature GET route.
 app.get("/:state/:city/temperature", (req, res, next) => {
-  console.log("Request:" + req.connection.remoteAddress + " -> " + req.params.city + ", " + req.params.state);
+  console.log("Request: " + req.connection.remoteAddress + " -> " + req.params.city + ", " + req.params.state);
   let query = util.format("?format=json&q=%s,%s,us", req.params.city, req.params.state);
   let options = {
     url: util.format("%s/%s", cfg.openStreetMap.base_url, query),
@@ -34,16 +33,26 @@ app.get("/:state/:city/temperature", (req, res, next) => {
     }
   };
 
+  // Attempt to geocode the request.
   request(options, (error, response, body) => {
     if (error) {
-      console.log(error);
-      JSON.
+      console.log("Error geocoding: " + error);
+      res.status(500).send(JSON.stringlify({'error': 'Could not geocode location.'}));
     } else {
-      // Go with the first result.
-      const place_data = JSON.parse(body);
-      const lat = Number(place_data[0]['lat']);
-      const lon = Number(place_data[0]['lon']);
-      weather.setCoordinate(lat, lon);
+      try {
+        // Go with the first result.
+        const place_data = JSON.parse(body);
+        const lat = Number(place_data[0]['lat']);
+        const lon = Number(place_data[0]['lon']);
+
+        // Set our present location.
+        weather.setCoordinate(lat, lon);
+      }
+
+      catch(err) {
+        console.log("Error with geocoding results: " + error);
+        res.status(500).send("Failed to get latitude and longitude of location.");
+      }
     }
   });
 
