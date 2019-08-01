@@ -6,14 +6,16 @@ const Sequelize = require('sequelize');
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../../config/config.json')[env];
+const yaml = require('js-yaml');
+
 const db = {};
 
 let sequelize;
 if (config.use_env_variable) {
   sequelize = new Sequelize(process.env[config.use_env_variable], config);
 } else {
-  const cfg = yaml.safeLoad(readFileSync('config.yml', 'utf8')).db;
-  sequelizeConfig = {
+  const cfg = yaml.safeLoad(fs.readFileSync('config.yml', 'utf8')).db;
+  const sequelizeConfig = {
     dialect: "postgres",
     host: cfg.host,
     port: cfg.port
