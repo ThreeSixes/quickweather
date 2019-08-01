@@ -6,6 +6,7 @@
 * Node.js 10.16.0 (LTS/Dubnium)
 * NVM
 * Supervisor
+* API key from [OpenWeathermap](https://openweathermap.org/api) with current data subscription (free).
 
 ### Background
 QuickWeather is a caching RESTful API that supports retrieving the temperature for a given city and state in the US. It's designed to run as an unprivileged user on a node bheind a load balancer that wraps connections in SSL when in production. The only supported routes in the API are */<state>/<city>/temperature* where state and city are the city name and two letter state abbreviation (OR, CO, WY, etc.).
@@ -13,6 +14,7 @@ The application is designed to be distributed using Jenkins or AWS CodeDeploy jo
 
 ### Repository layout
 * `config/` stores sequelize CLI configurations.
+  * `config.json` stores configuration values for the Sequelize CLI utilities.
 * `db/` contains Sequelize migrations and seeders.
 * `dist/` contains a sample application configuration.
 * `puppet/` contains Puppet modules, etc. required for Vagrant to provision development environments.
@@ -39,7 +41,56 @@ cp dist/config.yml .
 cp config/config.json.dist config/config.json
 ```
 
-You should then edit both `config.yml` and `config/config.json` to have appropriate values for the environment being deployed to.
+You should then edit both `config.yml` and `config/config.json` to have appropriate values for the environment being deployed to. Example configuration values for a local environment:
+
+config.yml:
+```yaml
+---
+openWeatherApi:
+  appid: "deadbeefdeadbeefdeadbeefdeadbeef"
+openStreetMap:
+  base_url: "https://nominatim.openstreetmap.org"
+service:
+  listen_port: 9999
+  user_agent: "QuickWeather/1.0"
+cache:
+  geocode_max_age: 604800
+  temperature_max_age: 1899
+db:
+  user: "vagrant"
+  password: "vagrant"
+  host: "127.0.0.1"
+  port: 5432
+  database: "quickweather"
+  cache_table: "temperature_cache"
+```
+
+config/config.json
+```json
+{
+  "development": {
+    "username": "vagrant",
+    "password": "vagrant",
+    "database": "quickweather",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "root",
+    "password": null,
+    "database": "database_test",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "root",
+    "password": null,
+    "database": "database_production",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  }
+}
+```
 
 ## Development and testing environment
 ### Theory of operation
