@@ -41,7 +41,7 @@ The `temperature_cache` table has five columns which cannot be null. All but the
 * `city` idnetifies the city the cached entry is for as a STRING.
 * `state` idnetifies the state the cached entry is for as a STRING.
 * `temperature` stores the cached temperature value as a FLOAT.
-* `expires` stores Unix time stamp of the time the cach entry expires as a BIGINT.
+* `expires` stores the Unix time stamp for when the cache entry expires as a BIGINT.
 
 ### Database migrations
 Database migrations should be executed using one of three commands appropriate to the circumstances inside a node 10.16.0 environment.
