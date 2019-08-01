@@ -6,6 +6,7 @@
   "engines": "10.16.0",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "setup": "cp config/config.json.dist config/config.json && cp dist/config.yml config.yml && npm run migrate:up && echo \"Please edit config.yml. See README.md for more details.\"",
     "start": "node src/server.js",
     "migrate:up": "./node_modules/.bin/sequelize db:migrate",
     "migrate:down": "./node_modules/.bin/sequelize db:migrate:undo"
